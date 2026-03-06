@@ -1,0 +1,32 @@
+name: Download TWRP to Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_url:
+        description: 'Direct URL to the TWRP image'
+        required: true
+        default: ''
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push the file back to your repo
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download File
+        run: |
+          mkdir -p recovery
+          curl -L "${{ github.event.inputs.file_url }}" -o recovery/twrp.img
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add recovery/twrp.img
+          git commit -m "Add downloaded TWRP image"
+          git push
